@@ -8,7 +8,7 @@ WriteMakefile
           'PREREQ_PM' => {
                            'Class::InsideOut' => '1.06',
                            'JSON' => '2.12',
-                           'Net::OpenSSH' => '0.30'
+                           'Net::OpenSSH' => '0.39'
                          },
           'INSTALLDIRS' => 'site',
           'EXE_FILES' => []

@@ -5,7 +5,7 @@ NAME
 SYNOPSIS
      use SSH::RPC::Client;
 
-     my $rpc = SSH::RPC::Shell->new($host, $user);
+     my $rpc = SSH::RPC::Client->new($host, $user);
      my $result = $rpc->run($command, \%args); # returns a SSH::RPC::Result object
 
      if ($result->isSuccess) {
@@ -24,6 +24,9 @@ DESCRIPTION
 
 METHODS
     The following methods are available from this class.
+
+  ssh
+    Constructs and returns a reference to the Net::OpenSSH object.
 
   new ( host, user,  [ pass ])
     Constructor.

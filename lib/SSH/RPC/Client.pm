@@ -1,6 +1,6 @@
 package SSH::RPC::Client;
 
-our $VERSION = 1.200;
+our $VERSION = 1.201;
 
 use strict;
 use Class::InsideOut qw(readonly private id register);
@@ -16,7 +16,7 @@ SSH::RPC::Client - The requestor, or client side, of an RPC call over SSH.
 
  use SSH::RPC::Client;
 
- my $rpc = SSH::RPC::Shell->new($host, $user);
+ my $rpc = SSH::RPC::Client->new($host, $user);
  my $result = $rpc->run($command, \%args); # returns a SSH::RPC::Result object
 
  if ($result->isSuccess) {
@@ -36,7 +36,15 @@ The following methods are available from this class.
 
 =cut
 
-private ssh => my %ssh;
+#-------------------------------------------------------------------
+
+=head2 ssh
+
+Constructs and returns a reference to the L<Net::OpenSSH> object.
+
+=cut
+
+readonly ssh => my %ssh;
 
 #-------------------------------------------------------------------
 
@@ -89,19 +97,25 @@ sub run {
         args    => $args,
         }) . "\n"; # all requests must end with a \n
     my $ssh = $self->ssh;
-    my $out;
     my $response;
-    if ($out = $ssh->capture({stdin_data => $json, ssh_opts => ['-T']})) {
-        $response =  eval{JSON->new->utf8->decode($out)};
-        if ($@) {
-            $response = {error=>"Response translation error. $@".$ssh->error, status=>510};
+    if ($ssh) {
+        my $out;
+        if ($out = $ssh->capture({stdin_data => $json, ssh_opts => ['-T']})) {
+            $response =  eval{JSON->new->utf8->decode($out)};
+            if ($@) {
+                $response = {error=>"Response translation error. $@".$ssh->error, status=>510};
+            }
+        }
+        else {
+            $response = {error=>"Transmission error. ".$ssh->error, status=>406};
         }
     }
     else {
-        $response = {error=>"Transmission error. ".$ssh->error, status=>406};
+        $response = {error=>"Connection error. ".$ssh->error, status=>408};
     }
     return SSH::RPC::Result->new($response);
 }
+
 
 =head1 SEE ALSO
 
